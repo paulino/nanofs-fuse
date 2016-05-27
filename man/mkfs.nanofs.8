@@ -1,0 +1,76 @@
+.\" -*- nroff -*-
+.\" Copyright 2011 by Paulino Ruiz de Clavijo
+.\" This file may be copied under the terms of the GNU Public License version 3
+.\"
+.TH MKFS.NANOFS 8 "May 2016" "NanoFS version 0.3"
+.SH NAME
+mkfs.nanofs \- create an Nanofs filesystem
+.SH SYNOPSIS
+.B mkfs.nanofs
+[
+.B \-b
+.I block-size
+]
+[
+.B \-v
+]
+[
+.B \-r
+]
+[
+.B \-l
+.I volume-label
+]
+device
+.sp
+
+.SH DESCRIPTION
+.B mkfs.nanofs
+is used to create an nanofs filesystem, usually in a block device or
+partition.
+.I device
+is the special file corresponding to the device (e.g
+.IR /dev/sdXX ).
+
+
+.SH OPTIONS
+.TP
+.BI \-b " block-size"
+Specify the size of blocks in bytes.  Valid block-size values are 1 byte or
+512 bytes.
+.TP
+.BI \-l " new-volume-label"
+Set the volume label for the filesystem to
+.IR new-volume-label .
+The maximum length of the
+volume label is 255 bytes.
+.TP
+
+
+.BI \-r " revision"
+Set the filesystem revision for the new filesystem. The default is revision 1.
+.TP
+.B \-S
+Write superblock only. This is useful if 
+the superblock is corrupted. It causes
+.B mkfs.nanofs 
+to reinitialize the
+superblock, while not touching the data structures.
+.TP
+.B \-v
+Verbose execution.
+.TP
+.B \-V
+Print the version number
+.SH AUTHOR
+
+.B mkfs.nanofs
+has been written by Paulino Ruiz de Clavijo <paulino@dte.us.es>.
+.SH BUGS
+Please, report them to the author.
+.SH AVAILABILITY
+.B mkfs.nanofs
+is part of the NanoFS project available at
+https://github.com/paulino/nanofs-fuse
+.SH SEE ALSO
+.BR nanofs.dump (8)

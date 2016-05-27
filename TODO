@@ -1,0 +1,21 @@
+* Print version on all programs
+
+
+Read only kernel driver
+=======================
+
+* File fragmentation not supported
+
+
+nanofs-manager:
+
+* rmdir/rm with bugs
+
+autotools:
+
+* add rules for check: test1.sh and test2.sh
+
+other:
+
+* Add license header to all files
+

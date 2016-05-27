@@ -1,0 +1,70 @@
+.\" '\" t
+.\" ** The above line should force tbl to be a preprocessor **
+.\" Man page for nanofuse
+.TH "nanofuse" 1 "May 2016" "Fuse implementation for NanoFS"
+.SH "NAME"
+nanofuse \- a FUSE filesystem for NanoFS
+.SH "SYNOPSIS"
+.\" The general command line
+.B nanofuse
+.RI [\| fuse\-options \|]
+nanofs\-image
+mount\-point
+.SH "OPTIONS"
+.TP
+\fB-h\fP
+print help
+.TP
+\fB-o opt[,opt...]\fP
+mount options
+.TP
+\fB-f\fP
+don't detach from terminal
+.TP
+\fB-d\fP
+turn on debugging, also implies \-f
+
+See FUSE documentation for details.
+.SH "DESCRIPTION"
+.B nanofuse
+is a fuse version with r/w support for NanoFS filesystem.
+
+.SH "USAGE"
+General usage would look like this
+
+.TS
+tab (@);
+l l.
+@mkdir\ nanofsimage
+@nanofuse /dev/sdxx nanofsimage
+@(do something with the mounted file system)
+@fusermount \-u /nanofsimage
+.TE
+.PP
+
+
+.SH "LICENSE"
+.
+
+This is is part of NanoFS project. NanoFS is free software: 
+you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+.
+.SH "AUTHORS"
+.
+Paulino Ruiz de Clavijo Vázquez <paulino@dte.us.es>
+
+Enrique Ostúa <ostua@dte.us.es>
+.br 
+
+.SH AVAILABILITY
+.B nanofuse
+is part of the NanoFS project available at 
+https://github.com/paulino/nanofs-fuse
+
+.SH "SEE ALSO"
+.BR fusermount (1), mkfs.nanofs (8), nanofs.dump (8)
+

@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>NanoFS spec 1.0</title>
+    <style type="text/css">
+        body { margin: 1em;}
+        h1 {text-align:center;}
+        .subtitle {  font-weight: bold;}
+        .subtitle, .authors { 
+            text-align:center;
+            font-style: italic;
+        }
+            
+        p { line-height: 1.5em; text-align: justify; page-break-before: auto }
+        
+        figcaption {
+            font-style: italic;
+            text-align:center;
+        }
+        
+        th {background-color: #e6e6e6; }
+        table {
+            border-collapse: collapse;
+            margin:2em 0;
+            
+        }
+        table td, table th {
+            border: 1px solid black;
+            padding: 0.2em;
+        }
+        caption { 
+            caption-side: bottom;
+            margin-top:1em;
+            font-style: italic;
+            
+        }
+        .cell-centered {
+            text-align: center;
+            vertical-align : middle;
+        }
+        .footer {text-align:right;}
+        
+
+    </style>
+</head>
+<body >
+<h1>NanoFS v1.0</h1>
+
+<p class="subtitle">
+File System Specification rev. 1 (Draft)
+</p>
+<p class="authors">Paulino Ruiz de Clavijo
+Vázquez &lt;<a href="mailto:paulino@dte.us.es">paulino@dte.us.es</a>&gt;, 
+Enrique Ostúa Aragüena &lt;
+<a href="mailto:ostua@dte.us.es">ostua@dte.us.es</a>&gt;
+</p>
+<h2>1.About NanoFS</h2>
+
+<p>The NanoFS (Nano Filesystem) has been
+developed as a very simple file system aimed to be implemented as
+IPCore in custom hardware designs. It has been designed from scratch
+keeping in mind the hardware implementation limitations. 
+</p>
+
+<p>To reduce hardware resources a new
+internal layout of file system is proposed to optimize file system
+data structures. The main feature is that the required data to
+navigate across file system layout and the file contents is mixed.
+Each single data block in the storage device contains both parts.
+With this characteristic when part of file data is fetched, the
+retrieved data contain a piece of file content and the required
+information about of location of next part. This distinguishes it
+from the other file systems.</p>
+
+<p>The new file system layout divides
+the storage device in data blocks structured as nodes of a linked
+list. The file system is optimal when node size and block size in the
+storage device matches. All nodes of the file system are in a forward
+linked list, being all data on device reachable. Internally all nodes
+contains two parts: fields with pointers to other nodes and a field
+with the file data. The file data field has a fragment of the file
+contents. To simplify the structures management, only exists two
+types of data node. One is called data node and is used to store file
+content. The other node type represents directory entries and is used
+for directories tree structure. 
+</p>
+
+<h2  >2.File system layout</h2>
+<p>
+NanoFS consists of a data structures stored along the memory device.
+As in most filesystems, the block device is divided
+in blocks of fixed size called <i>block size
+filesystem</i>. With NanoFS each block is
+refered by a unique integer number called BlockNo. The block numbers
+are sequential starting in 0.
+</p>
+
+<p>A NanoFS formated device is built as a
+linked list of nodes of NanoFS data structures. Each node of the
+filesystem is stored in one or several straight  blocks. The
+filesystem is stuctured in a linked list where nodes are referenced
+using its blockNo. 
+</p>
+
+<p>Besides superblock with NanoFS a node contains a dir_node or data_node. The
+figure 1 depicts a
+nodes forming a filesystem with nodes offsets (in bytes) and pointers
+referencing blockNos.</p>
+
+<p>All numeric data is stored in little endian format</p>
+
+<figure>
+    <img src="nanofs-layout.svg">
+    <figcaption>Figure 1. Example of
+NanoFS layout using 512bytes of block size.</figcaption>
+</figure>
+
+<h3>2.1.Superblock</h3>
+<p>The starting point of NanoFS is the
+superblock located at byte offset 0 of memory/device. Superblock
+links with two data structures: data blocks allocated and free data
+blocks. Field block size represents the field length multiplier</p>
+
+    <table>
+    <caption>Table 1. Superblock data
+    structure (nanofs_superblock).</caption>
+    <thead>
+        <tr>
+            <th>
+                Offset in bytes
+            </th>
+            <th>
+                Size in bytes
+            </th>
+            <th>
+                Name
+            </th>
+            <th>
+                Description
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td class="cell-centered">0</td>
+            <td class="cell-centered">2</td>
+            <td>s_magic</td>
+            <td>Magic Number 0x4E61</td>
+            </tr>
+            
+            <tr>
+            <td class="cell-centered">2</td>
+            <td class="cell-centered">1</td>
+            <td>s_blocksize</td>
+            <td>Block size</td>
+            </tr>
+            
+            <tr>
+            <td class="cell-centered">3</td>
+            <td class="cell-centered">1</td>
+                <td>s_revision</td>
+                <td>Revision</td>
+            </tr>
+            
+            <tr>
+            <td class="cell-centered">4</td>
+            <td class="cell-centered">4</td>
+            <td>s_alloc_ptr</td>
+            <td>Absolute blockNo of allocated root entry </td>
+            </tr>
+            
+            <tr>
+            <td class="cell-centered">8</td>
+            <td class="cell-centered">4</td>
+            <td >s_free_ptr</td>
+            <td >Absolute blockNo of start of free blocks list</td>
+            </tr>
+            
+            <tr>
+            <td class="cell-centered">12</td>
+            <td class="cell-centered">4</td>
+            <td>s_fs_size</td>
+            <td>Filesystem size inblocks</td>
+            </tr>
+            
+            <tr>
+            <td class="cell-centered">16</td>
+            <td class="cell-centered">16</td>
+                <td>s_uuid</td>
+                <td>Fixed NanoFS UUID</td>
+            </tr>
+            <tr>
+            <td class="cell-centered">32</td>
+            <td class="cell-centered">2</td>
+            <td>s_extra_size</td>
+            <td>Extra superblock size in bytes</td>
+            </tr>
+        </tbody>
+    </table>
+
+    
+    <table>
+    <caption>Table 2. Block size field.</caption>
+        <thead>
+            <tr>
+                <th>
+                    Block size value
+                </th>
+                <th>
+                    Block size
+                </th>
+                <th>
+                    Max file system size
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td class="cell-centered">
+                    0
+                </td>
+                <td >
+                    1 byte
+                </td>
+                <td>
+                    4GiBytes
+                </td>
+            </tr>
+            <tr>
+            <td class="cell-centered">
+                    1
+                </td>
+                <td>
+                    512 bytes
+                </td>
+                <td>
+                    2TiBytes
+                </td>
+            </tr>
+            <tr>
+            <td class="cell-centered">
+                    2
+                </td>
+                <td>
+                    4096 bytes
+                </td>
+                <td>
+                    16TiBytes
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</center>
+
+<h3  >2.2.Allocated block data structure</h3>
+<p>Allocated blocks data structure is
+used to store directory structure and all content of files. This
+information is kept using three types of nodes:</p>
+<ul>
+    <li><p>Directory entry nodes</p>
+    <li><p>Metadata nodes</p>
+    <li><p>Data nodes</p>
+</ul>
+<p>As seen above (<a href="nanofs-layout.svg">fig 1</a>),
+allocated blocks begin at root node linked from superblock. This root
+node is of type directory entry and data contains filesystem label.</p>
+
+<h3  >2.3.Directory entry structure</h3>
+<p>In the directory entries, pointers
+are 4 bytes length and its represent a absolute block number starting
+in 0. The block number 0 is superblock. All pointers/block numbers
+are in little endian format.</p>
+
+<table>
+<caption>Table 3. Directory entry
+structure (dir_node)</caption>
+    <thead>
+        <tr>
+            <th>
+                Offset in bytes
+            </th>
+            <th>
+                Size in bytes
+            </th>
+            <th>
+                Field name
+            </th>
+            <th>
+                Description
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="cell-centered">
+                0
+            </td>
+            <td class="cell-centered">
+                1
+            </td>
+            <td>
+                d_flags
+            </td>
+            <td>
+                Directory entry flags
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-centered">
+                1
+            </td>
+            <td class="cell-centered">
+                4
+            </td>
+            <td  >
+                d_next_ptr
+            </td>
+            <td  >
+                Absolute blockNo of next directory entry 
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-centered">
+                5
+            </td>
+            <td class="cell-centered">
+                4
+            </td>
+            <td>
+                d_data_ptr
+            </td>
+            <td>
+                Absolute blockNo of first child data block
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-centered">
+                9
+            </td>
+            <td class="cell-centered">
+                4
+            </td>
+            <td >
+                d_meta_ptr
+            </td>
+            <td >
+                Absolute blockNo of first metadata block
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-centered">
+                13
+            </td>
+            <td class="cell-centered">
+                1
+            </td>
+            <td>
+                d_fname_len
+            </td>
+            <td>
+                Length in bytes of filename
+            </td>
+        </tr>
+        <tr>
+        <td class="cell-centered">
+                14
+            </td>
+            <td class="cell-centered">
+                256
+            </td>
+            <td  >
+                f_name
+            </td>
+            <td>
+                Name of file
+            </td>
+        </tr>
+        <tr>
+            <td class="cell-centered">
+                270
+            </td>
+            <td class="cell-centered">
+                34
+            </td>
+            <td >
+                f_meta
+            </td>
+            <td >
+                Standard metadata (see table 5)
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<p>Directory entry field d_flags details:</p>
+
+<table>
+    <caption>Table 4. Bits for 'd_flags' byte.</caption>
+    <tr>
+        <th>
+            7
+        </th>
+        <th>
+            6
+        </th>
+        <th>
+            5
+        </th>
+        <th>
+            4
+        </th>
+        <th>
+            3
+        </th>
+        <th>
+            2
+        </th>
+        <th>
+            1
+        </th>
+        <th>
+            0
+        </th>
+    </tr>
+    <tr>
+        <td >
+            f_metadata
+        </td>
+        <td >
+            -
+        </td>
+        <td >
+            -
+        </td>
+        <td >
+            -
+        </td>
+        <td >
+            -
+        </td>
+        <td >
+            f_type2
+        </td>
+        <td >
+            f_type1
+        </td>
+        <td >
+            f_type0
+        </td>
+    </tr>
+    <tr>
+        <td >
+            1: Valid standard
+            metadata<br>
+            0: No metadata
+        </td>
+        <td >
+            <br>
+            
+        </td>
+        <td >
+            <br>
+            
+        </td>
+        <td >
+            <br>
+            
+        </td>
+        <td >
+            <br>
+            
+        </td>
+        <td colspan="3">
+            000: Directory<br>
+            001: Reg. File<br>
+            010: Character device<br>
+            011: Block device<br>
+            100: Fifo<br>
+            101: Socket<br>
+            110: Sym. Link 
+        </td>
+    </tr>
+</table>
+
+<p>
+As far as possible, the <i>metadata</i> structure uses the same
+fields and size that the ext2/ext4 filesystem inodes structures. 
+</p>
+
+<table>
+    <caption>Table 5. Standard metadata.</caption>
+        <thead>
+    
+            <tr>
+                <th>
+                    Offset in bytes
+                </th>
+                <th>
+                    Size in bytes
+                </th>
+                <th>
+                    Field name
+                </th>
+                <th>
+                    Description
+                </th>
+            </tr>
+        </thead>
+            <tr>
+            <td class="cell-centered" >
+                    270
+                </td>
+                <td class="cell-centered" >
+                    4
+                </td>
+                <td  >
+                    m_uid
+                </td>
+                <td  >
+                    32 bits owner user
+                    ID
+                </td>
+            </tr>
+            <tr>
+            <td class="cell-centered">
+                    274
+                </td>
+                <td class="cell-centered">
+                    4
+                </td>
+                <td  >
+                    m_gid
+                </td>
+                <td  >
+                    32 bits group ID
+                </td>
+            </tr>
+            <tr>
+            <td class="cell-centered">
+                    278
+                </td>
+                <td class="cell-centered">
+                    4
+                </td>
+                <td  >
+                    m_atime
+                </td>
+                <td  >
+                    32bit, the last
+                    time this file was
+                    accesed (number of
+                    seconds since january 1st 1970)
+                </td>
+            </tr>
+            <tr>
+            <td class="cell-centered">
+                    282
+                </td>
+                <td class="cell-centered" >
+                    4
+                </td>
+                <td  >
+                    m_ctime
+                </td>
+                <td  >
+                    32bit, time when
+                    the file was
+                    created (number of
+                    seconds since january 1st 1970)
+                </td>
+            </tr>
+            <tr>
+            <td class="cell-centered">
+                    286
+                </td>
+                <td class="cell-centered">
+                    4
+                </td>
+                <td  >
+                    m_mtime
+                </td>
+                <td  >
+                    32bit, the last
+                    time when this file was
+                    modified (number of
+                    seconds since january 1st 1970)
+                </td>
+            </tr>
+            <tr>
+            <td class="cell-centered">
+                    290
+                </td>
+                <td class="cell-centered">
+                    4
+                </td>
+                <td  >
+                    m_atime_extra
+                </td>
+                <td  >
+                See ref. 
+                [<a href="https://ext4.wiki.kernel.org/index.php/Ext4_Disk_Layout">
+                    EXT4-LAYOUT</a>]
+                </td>
+            </tr>
+            <tr>
+            <td class="cell-centered">
+                    294
+                </td>
+                <td class="cell-centered">
+                    4
+                </td>
+                <td  >
+                    m_ctime_extra
+                </td>
+                <td  >
+                    See ref. [2]
+                </td>
+            </tr>
+            <tr>
+            <td class="cell-centered">
+                    298
+                </td>
+                <td class="cell-centered">
+                    4
+                </td>
+                <td  >
+                    m_mtime_extra
+                </td>
+                <td>See ref.
+                [<a href="https://ext4.wiki.kernel.org/index.php/Ext4_Disk_Layout">
+                EXT4-LAYOUT</a>]
+                </td>
+            </tr>
+            <tr>
+            <td class="cell-centered">
+                    302
+                </td>
+                <td class="cell-centered">
+                    2
+                </td>
+                <td  >
+                    m_mode
+                </td>
+                <td >
+                    Based in ext2/ext4 i_mode field with some limitations
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    
+
+<table >
+<caption>Table 6. Bits for mode, lower byte 
+    (field 'm_mode', offset 302)</caption>
+    <tr>
+        <th>
+            7
+        </th>
+        <th>
+            6
+        </th>
+        <th>
+            5
+        </th>
+        <th>
+            4
+        </th>
+        <th>
+            3
+        </th>
+        <th>
+            2
+        </th>
+        <th>
+            1
+        </th>
+        <th>
+            0
+        </th>
+    </tr>
+    <tr>
+        <td >
+            S_IWUSR
+        </td>
+        <td >
+            S_IXUSR
+        </td>
+        <td >
+            S_IRGRP
+        </td>
+        <td >
+            S_IWGRP
+        </td>
+        <td >
+            S_IXGRP
+        </td>
+        <td >
+            S_IROTH
+        </td>
+        <td >
+            S_IWOTH
+        </td>
+        <td>
+            S_IXOTH
+        </td>
+    </tr>
+    <tr>
+        <td >
+            Owner may write
+        </td>
+        <td >
+            Owner may execute
+        </td>
+        <td >
+            Group members may
+            read
+        </td>
+        <td >
+            Group members may
+            write
+        </td>
+        <td >
+            Group members may
+            execute
+        </td>
+        <td >
+            Others may read
+        </td>
+        <td >
+            Others may write
+        </td>
+        <td>
+            Others may execute
+        </td>
+    </tr>
+</table>
+
+<table>
+<caption>Table 7. Bits for mode node,
+upper byte (field m_mode, offset 303).</caption>
+    <tr>
+        <th>
+            15
+        </th>
+        <th>
+            14
+        </th>
+        <th>
+            13
+        </th>
+        <th>
+            12
+        </th>
+        <th>
+            11
+        </th>
+        <th>
+            10
+        </th>
+        <th>
+            9
+        </th>
+        <th>
+            8
+        </th>
+    </tr>
+    <tr>
+        <td >
+            –
+        </td>
+        <td >
+            –
+        </td>
+        <td >
+            –
+        </td>
+        <td >
+            –
+        </td>
+        <td >
+            S_ISUID
+        </td>
+        <td >
+            S_ISUID
+        </td>
+        <td >
+            S_ISVTX
+        </td>
+        <td>
+            S_IRUSR
+        </td>
+    </tr>
+    <tr>
+        <td >
+            <br>
+            
+        </td>
+        <td >
+            <br>
+            
+        </td>
+        <td >
+            <br>
+            
+        </td>
+        <td >
+            <br>
+            
+        </td>
+        <td >
+            Set UID
+        </td>
+        <td >
+            Set GID
+        </td>
+        <td >
+            Sticky bit
+        </td>
+        <td>
+            Owner may read
+        </td>
+    </tr>
+</table>
+
+<h3 >2.4. Data block and free blocks data structure</h3>
+<p>The following structure is used for data stored nodes and free nodes. </p>
+
+<table>
+<caption>Table 8. Data nodes structure.</caption>
+    <thead>
+        <tr>
+            <th>
+                Offset in bytes
+            </th>
+            <th>
+                Field name
+            </th>
+            <th>
+                Size in bytes
+            </th>
+            <th>
+                Field name
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+        <td class="cell-centered">
+                0
+            </td>
+            <td >
+                d_next_ptr
+            </td>
+            <td class="cell-centered">
+                4
+            </td>
+            <td  >
+                Absolute next
+                block pointer 
+                
+            </td>
+        </tr>
+        <tr>
+        <td class="cell-centered">
+                4
+            </td>
+            <td  >
+                d_len
+            </td>
+            <td class="cell-centered">
+                4
+            </td>
+            <td  >
+                Data length
+            </td>
+        </tr>
+        <tr>
+        <td class="cell-centered">
+                8
+            </td>
+            <td>
+                d_data
+            </td>
+            <td class="cell-centered">
+                d_len
+            </td>
+            <td>
+                Data                 
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<h2  >3.File system limits</h2>
+<ul>
+    <li><p>Max
+    file name: 255 characters</p>
+    <li><p>Hard
+    links not supported</p>
+</ul>
+<h2>4.References</h2>
+
+<ol>
+<li>
+<a href="http://www.nongnu.org/ext2-doc/ext2.html">
+    The Second Extended File System, Internal Layout</a>, Dave Poirier
+</li>
+<li> Ext4 Disk Layout, &lt;<a href="https://ext4.wiki.kernel.org/index.php/Ext4_Disk_Layout">https://ext4.wiki.kernel.org/index.php/Ext4_Disk_Layout</a>&gt;
+</li>
+</ol>
+
+<p class="footer">Rev. 1 (03/27/14)</p>
+</body>
+</html>

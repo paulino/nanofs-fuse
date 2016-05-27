@@ -1,0 +1,5 @@
+#AC_LOCAL_AMFLAGS = -l m4
+
+SUBDIRS = src man
+
+EXTRA_DIST = README.md
