@@ -2,7 +2,7 @@
 
 NanoFS is a lightweight file system intended to be used with microcontrollers
 or directly from a HDL design. You can get detailed information at 
-[doc]/doc directory.
+[doc](/doc) directory.
  
 ## Compiling and installing on GNU/Linux:
 
@@ -63,7 +63,7 @@ purpose and has some limitations:
 ## License
 
 GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007.
-See the [COPYING]/COPYING for the complete text.
+See the [COPYING](/COPYING) for the complete text.
 
 
 ## Authors
