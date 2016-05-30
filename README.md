@@ -6,7 +6,9 @@ or directly from a HDL design. You can get detailed information at
  
 ## Compiling and installing on GNU/Linux:
 
-Get a copy of sources from git or a tarball distribution
+Get a copy of sources from git or a tarball distribution. With a copy from git, 
+run `autogen.sh` to prepare your build system for compilation with autotools. 
+Getting a tarball copy, autotools are not required.
 
 Install dependencies. Here's an example for Debian/Ubuntu:
 
