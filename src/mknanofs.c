@@ -39,6 +39,7 @@
 #include <string.h>
 #include <unistd.h>
 
+
 #include "nanofs.h"
 #include "nanofs_io.h"
 #include <endian.h>
@@ -223,7 +224,7 @@ int check_mount(char *device_name) {
 int do_format(char* device, char* volname, int blk_size) {
     //int err;
     int fd;
-    unsigned long long dev_size;
+    __u64 dev_size;
     int blk_bits;
     off_t current_off, next_off;
 
@@ -303,7 +304,7 @@ int do_format(char* device, char* volname, int blk_size) {
     if (global_verbose)
         printf("Free blocks:\n");
     current_off += 1 << blk_bits;
-    while (current_off < dev_size) {
+    while ( (__u64)current_off < dev_size) {
         if (dev_size - current_off <= 0xFFFFFFFFL - NANOFS_HEADER_DATA_NODE_SIZE) // Free space fits on one free node
         {
             db.d_next_ptr = 0;

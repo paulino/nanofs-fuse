@@ -53,6 +53,9 @@
 // Max number of entries to read in a directory
 #define MAX_DIRENTRIES 5000
 
+// Work around -Wall gcc
+#define UNUSED(...) (void)(__VA_ARGS__)
+
 int nanofuse_buildstatbuf(struct nanofs_filedir_handle *, struct stat *);
 int nanofuse_rootfsstat(struct stat *);
 
@@ -161,11 +164,10 @@ int nanofuse_rootfsstat(struct stat *statbuf)
 
 int nanofuse_readlink(const char *path, char *link, size_t size)
 {
-    //int retstat = 0;
+    UNUSED(path);
 
     log_debug("nanofuse_readlink: not implemented, path=\'s', "
             "link='%s', size=%d)", path, link, size);
-
     return -1;
 }
 
@@ -202,6 +204,8 @@ int nanofuse_mkdir(const char *path, mode_t mode)
     char *dirname_buf = strdup(path);
     char *base_name = basename(basename_buf);
 	char *dir_name =  dirname(dirname_buf);
+
+	UNUSED(mode);
 
     log_debug("nanofuse_mkdir: path='%s', mode=0%3o", path, mode);
 
@@ -295,7 +299,6 @@ int nanofuse_symlink(const char *path, const char *link)
 {
     log_debug("nanofuse_symlink: not implemented, path='%s', link='%s'",
 	    path, link);
-
     return -1;
 }
 
@@ -535,6 +538,7 @@ int nanofuse_statfs(const char *path, struct statvfs *statv)
  */
 int nanofuse_flush(const char *path, struct fuse_file_info *fi)
 {
+    UNUSED(fi);
     log_debug("nanofuse_flush: path='%s'", path);
     return 0;
 }
@@ -568,6 +572,8 @@ int nanofuse_release(const char *path, struct fuse_file_info *fi)
  */
 int nanofuse_fsync(const char *path, int datasync, struct fuse_file_info *fi)
 {
+    UNUSED(fi);
+
     log_debug("nanofuse_fsync: path='%s', datasync=%d", path, datasync);
     return 0;
 }
@@ -680,6 +686,8 @@ int nanofuse_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
     struct nanofs_filedir_handle fh_vector[MAX_DIRENTRIES];
     struct nanofs_filedir_handle *dir_handle;
 
+    UNUSED(offset);
+
     log_debug("nanofuse_readdir: path='%s'",path);
 
     dir_handle =(struct nanofs_filedir_handle *)fi->fh;
@@ -766,8 +774,9 @@ void *nanofuse_init(struct fuse_conn_info *conn)
  */
 void nanofuse_destroy(void *userdata)
 {
-
 	log_debug("nanofuse_destroy: closing device");
+
+	UNUSED(userdata);
 
 	nanofs_close_dev(&nanofuse_CONTEXT->fs_hd);
 
@@ -835,6 +844,7 @@ int nanofuse_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 int nanofuse_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
 {
     int retstat = ENOTSUP;
+    UNUSED(fi);
 
     log_debug("nanofuse_ftruncate: path='%s', offset=%lld", path, offset);
 

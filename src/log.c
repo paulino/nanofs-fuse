@@ -27,7 +27,7 @@ void log_debug(const char *format, ...)
 
 #else
 
-void log_error(const char *format, ...) {;}
-void log_debug(const char *format, ...) {;}
+void log_error(const char *format, ...) {(void)format;}
+void log_debug(const char *format, ...) {(void)format;}
 
 #endif

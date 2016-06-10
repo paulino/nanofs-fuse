@@ -93,9 +93,9 @@ int nanofs_rm(struct nanofs_fs_handle *fs_hd,char *file_name,
 
 
 /* Low level utilities */
-inline int nanofs_read_dir_node_b(struct nanofs_fs_handle *fs_hd,__u32 blk_no,
+int nanofs_read_dir_node_b(struct nanofs_fs_handle *fs_hd,__u32 blk_no,
         struct nanofs_dir_node *dn_out);
-inline int nanofs_read_data_node_b(struct nanofs_fs_handle *fs_hd,__u32 blk_no,
+int nanofs_read_data_node_b(struct nanofs_fs_handle *fs_hd,__u32 blk_no,
         struct nanofs_data_node *dn_out);
 
 

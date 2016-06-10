@@ -126,7 +126,7 @@ int dump_nanofs(char *device_str)
     unsigned long long dev_size = 1000000L;
     int fd;
     int blk_size = 0;
-    int blk_bits;
+    int blk_bits = 0;
 
     struct nanofs_superblock sb;
     struct nanofs_dir_node dn;
@@ -225,7 +225,8 @@ int dump_nanofs(char *device_str)
     }
 
     // Recursive dump dirs
-    err = dump_directory(fd, blk_bits, sb.s_alloc_ptr, 0);
+    if (err == 0)
+        err = dump_directory(fd, blk_bits, sb.s_alloc_ptr, 0);
 
 
     close(fd);
@@ -361,7 +362,7 @@ int dump_data_blocks(int fd_dev, int blk_bits, int blkno, int level)
 int dump_file_contents(int fd_dev, int blk_bits, int data_blkno)
 {
     char buf[1024];
-    int i;
+    __u32 i;
     int err = 0;
     struct nanofs_data_node data_nd;
     int bytes;

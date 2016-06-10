@@ -155,7 +155,7 @@ int nanofs_get_block_bits(struct nanofs_superblock *sb)
 /** Read dir_node given a blk_no
  * @return 0 on success | on error return -1 and set fs_hd->error
  * */
-inline int nanofs_read_dir_node_b(struct nanofs_fs_handle *fs_hd,__u32 blk_no,
+int nanofs_read_dir_node_b(struct nanofs_fs_handle *fs_hd,__u32 blk_no,
         struct nanofs_dir_node *dn_out)
 {
     if( nanofs_read_dir_node(fs_hd->h_fd, blk_no << fs_hd->h_block_bits,
@@ -170,7 +170,7 @@ inline int nanofs_read_dir_node_b(struct nanofs_fs_handle *fs_hd,__u32 blk_no,
  * @return 0 on success | on error return -1 and set fs_hd->errorned
  * */
 
-inline int nanofs_read_data_node_b(struct nanofs_fs_handle *fs_hd,__u32 blk_no,
+int nanofs_read_data_node_b(struct nanofs_fs_handle *fs_hd,__u32 blk_no,
         struct nanofs_data_node *dn_out)
 {
     if(nanofs_read_data_node(fs_hd->h_fd,
@@ -636,7 +636,7 @@ static int nanofs_alloc_dir_node(struct nanofs_fs_handle *fs_hd,
     }
 
     if ( (data_nd.d_len + NANOFS_HEADER_DATA_NODE_SIZE ) <
-                (1 << fs_hd->h_block_bits))
+                ( (__u32)1 << fs_hd->h_block_bits))
     {
         // This may not happen due block size is 512, the free_node
         // uses at least one 512 block
@@ -646,7 +646,7 @@ static int nanofs_alloc_dir_node(struct nanofs_fs_handle *fs_hd,
     }
 
     if((data_nd.d_len + NANOFS_HEADER_DATA_NODE_SIZE ) ==
-                ( 1 << fs_hd->h_block_bits ))
+                ( (__u32)1 << fs_hd->h_block_bits ))
     {
         // data_node size = 1 block, convert data_node to dir_node
         new_blkno = fs_hd->h_sb.s_free_ptr;
@@ -818,7 +818,7 @@ int nanofs_read(struct nanofs_fs_handle *fs_hd,
     off_t buf_pos,  file_pos, i_offset;
     size_t bytes_left;
     __u32 blk_no;
-    __u32 bytes_to_read;
+    int   bytes_to_read;
 
     blk_no = fh->f_dir_node.d_data_ptr;
     file_pos = 0;
@@ -856,7 +856,7 @@ int nanofs_read(struct nanofs_fs_handle *fs_hd,
             // Internal offset in this node
             i_offset = offset - file_pos;
 
-            if(data_node.d_len - i_offset >= bytes_left)
+            if(data_node.d_len - (__u32)i_offset >= bytes_left)
                 bytes_to_read = bytes_left;
             else
                 bytes_to_read = data_node.d_len - i_offset;
@@ -929,7 +929,7 @@ int nanofs_write(struct nanofs_fs_handle *fs_hd,
         // write data
         if( nanofs_write_dev(fs_hd->h_fd,
                 (blk_no << fs_hd->h_block_bits) + NANOFS_HEADER_DATA_NODE_SIZE +
-                i_offset , buf, bytes_written) != bytes_written)
+                i_offset , buf, bytes_written) != (int)bytes_written)
             return size - bytes_left - bytes_written; // Error
 
         // update data_node
@@ -944,7 +944,7 @@ int nanofs_write(struct nanofs_fs_handle *fs_hd,
     // Add new data_nodes to file
     while (bytes_left > 0)
     {
-        // i_offset is set to buf position to continue writting
+        // i_offset is set to buf position to continue writing
         i_offset = size - bytes_left;
 
         // Appends new block to the end of the file and
@@ -963,7 +963,7 @@ int nanofs_write(struct nanofs_fs_handle *fs_hd,
         if( nanofs_write_dev(fs_hd->h_fd,
                 (blk_no << fs_hd->h_block_bits) +
                 NANOFS_HEADER_DATA_NODE_SIZE,
-                &buf[i_offset], bytes_written) != bytes_written)
+                &buf[i_offset], bytes_written) != (int)bytes_written)
             return -1;
 
         //  Update data_node. FIXME: Not always required, only when
