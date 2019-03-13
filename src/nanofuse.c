@@ -43,7 +43,7 @@
 #include <sys/xattr.h>
 #include <asm/types.h>
 
-#define FUSE_USE_VERSION 26
+#define FUSE_USE_VERSION 31
 
 #include "fuse.h"
 #include "log.h"
