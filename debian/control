@@ -1,0 +1,12 @@
+Source: nanofs-fuse
+Section: admin
+Priority: optional
+Maintainer:  Paulino Ruiz de Clavijo <pruiz@us.es>
+Build-Depends: build-essential, libfuse-dev, debhelper (>= 9)
+
+
+Package: nanofs-fuse
+Architecture: any
+Depends: fuse, ${shlibs:Depends}, ${misc:Depends}
+Description: NanoFS filesystem
+ Lightweight file system
