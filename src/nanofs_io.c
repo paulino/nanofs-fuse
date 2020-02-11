@@ -15,7 +15,7 @@
     along with NanoFS.  If not, see <http://www.gnu.org/licenses/>.
 
     @file nanofs_io.c
-    @author Paulino Ruiz de Clavijo Vázquez <paulino@dte.us.es>
+    @author Paulino Ruiz de Clavijo Vázquez <pruiz@us.es>
     @version 0.4
     @date 2016-05-20
     @brief Low level device functions

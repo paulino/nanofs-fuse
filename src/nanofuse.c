@@ -17,7 +17,7 @@
   You should have received a copy of the GNU General Public License
   along with NanoFS.  If not, see <http://www.gnu.org/licenses/>.
 
-  @author Paulino Ruiz de Clavijo Vázquez <paulino@dte.us.es>,
+  @author Paulino Ruiz de Clavijo Vázquez <pruiz@us.es>,
           Enrique Ostúa, <ostua@dte.us.es>.
 
   @date 2016-23-05
@@ -942,11 +942,11 @@ int main(int argc, char *argv[])
     // and refuse if it is.  The somewhat smaller hole of an ordinary
     // user doing it with the allow_other flag is still there because
     // I don't want to parse the options string.
-    if ((getuid() == 0) || (geteuid() == 0)) {
+    /*if ((getuid() == 0) || (geteuid() == 0)) {
     	fprintf(stderr, "Running nanofuse as root opens unacceptable"
     			" security holes\n");
 	return 1;
-    }
+    }*/
 
 
 

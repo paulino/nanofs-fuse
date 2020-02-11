@@ -4,7 +4,7 @@
 PACKAGE = nanofs-fuse
 VERSION = 0.3.0
 AC_CONFIG_MACRO_DIR([m4])
-AC_INIT([nanofs-fuse], [0.3.0], [paulino@dte.us.es])
+AC_INIT([nanofs-fuse], [0.3.0], [pruiz@us.es])
 
 AM_INIT_AUTOMAKE([foreign])
 

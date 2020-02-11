@@ -70,7 +70,7 @@ See the [COPYING](/COPYING) for the complete text.
 
 ## Authors
 
-Paulino Ruiz de Clavijo Vázquez <paulino@dte.us.es>
+Paulino Ruiz de Clavijo Vázquez <pruiz@us.es>
 
 Enrique Ostúa Aragüena <ostua@dte.us.es>
 

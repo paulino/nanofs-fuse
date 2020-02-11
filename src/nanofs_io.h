@@ -14,7 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with NanoFS.  If not, see <http://www.gnu.org/licenses/>.
 
-    @author Paulino Ruiz de Clavijo Vázquez <paulino@dte.us.es>
+    @author Paulino Ruiz de Clavijo Vázquez <pruiz@us.es>
     @version 0.4
     @date 2012-05-12
     @brief Low level device functions

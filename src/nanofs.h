@@ -15,7 +15,7 @@
     along with NanoFS.  If not, see <http://www.gnu.org/licenses/>.
 
     @file nanofs.h
-    @author Paulino Ruiz de Clavijo Vázquez <paulino@dte.us.es>
+    @author Paulino Ruiz de Clavijo Vázquez <pruiz@us.es>
     @date 2012-05-12
     @version 0.3
 

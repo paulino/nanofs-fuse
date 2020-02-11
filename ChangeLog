@@ -1,4 +1,4 @@
-2012-04-09 Paulino Ruiz de Clavijo Vázquez <paulino@dte.us.es>
+2012-04-09 Paulino Ruiz de Clavijo Vázquez <pruiz@us.es>
     
     * Added file manager API.
     * nanofs-manager:
@@ -6,7 +6,7 @@
       - put/get file verified using test2.sh
       - multilevel dir verified
 
-2012-03-20 Paulino Ruiz de Clavijo Vázquez <paulino@dte.us.es>
+2012-03-20 Paulino Ruiz de Clavijo Vázquez <pruiz@us.es>
 
     * Kernel readonly driver tested only with one file
     * Added test for kernel module

@@ -15,7 +15,7 @@
     along with NanoFS.  If not, see <http://www.gnu.org/licenses/>.
 
     @file nanofs_filedir.h
-    @author Paulino Ruiz de Clavijo Vázquez <paulino@dte.us.es>
+    @author Paulino Ruiz de Clavijo Vázquez <pruiz@us.es>
     @date 2016-05-20
     @version revision: 0.4
     @brief Nanofs file/dir functions
