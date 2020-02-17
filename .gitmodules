@@ -1,0 +1,3 @@
+[submodule "tests/hdstress"]
+	path = tests/hdstress
+	url = https://github.com/paulino/hdstress
